@@ -60,8 +60,9 @@ public class RoleService {
 	@Transactional
 	public RoleDTO update(Long id, RoleDTO dto) {
 
-		@SuppressWarnings("deprecation")
-		Role entity = repository.getOne(id);
+		Optional<Role> obj = repository.findById(id);
+
+		Role entity = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + id));
 		entity.setAuthority(dto.getAuthority());
 		repository.save(entity);
 		return new RoleDTO(entity);
