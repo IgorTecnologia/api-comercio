@@ -60,8 +60,9 @@ public class CategoryService {
 	@Transactional
 	public CategoryDTO update(Long id, CategoryDTO dto) {
 
-		@SuppressWarnings("deprecation")
-		Category entity = repository.getOne(id);
+		Optional<Category> obj = repository.findById(id);
+
+		Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + id));
 		entity.setName(dto.getName());
 		repository.save(entity);
 		return new CategoryDTO(entity);
