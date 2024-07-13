@@ -65,8 +65,8 @@ public class ProductService {
 	@Transactional
 	public ProductDTO update(Long id, ProductDTO dto) {
 
-		@SuppressWarnings("deprecation")
-		Product entity = repository.getOne(id);
+		Optional<Product> obj = repository.findById(id);
+		Product entity = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + id));
 		copyDtoToEntity(entity, dto);
 		repository.save(entity);
 		return new ProductDTO(entity);
