@@ -63,8 +63,9 @@ public class UserService {
 	@Transactional
 	public UserDTO update(Long id, UserDTO dto) {
 
-		@SuppressWarnings("deprecation")
-		User entity = repository.getOne(id);
+		Optional<User> obj = repository.findById(id);
+
+		User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + id));
 		copyDtoToEntity(entity, dto);
 		repository.save(entity);
 		return new UserDTO(entity);
