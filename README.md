@@ -1,6 +1,6 @@
 # api-comercio
 Uma API que representa um aplicação de um comercio, para ser utilizada por um funcionário.
-
+ 
 ## Como instalar a aplicação
 Através do comando git clone <url deste repositório> você pode armazena-lá no seu repositório local.
 
