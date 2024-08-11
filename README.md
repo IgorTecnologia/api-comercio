@@ -36,8 +36,9 @@ git clone https://github.com/IgorTecnologia/api-comercio.git
 
 Import this URL into your Postman to use the ready-made HTTP methods to make requests/responses:
 
-URL: https://api.postman.com/collections/30344579-a0674725-66fb-4f96-a80f-2d5e8e3f916d?access_key=PMAT-01J50SK085XAN5VX76WMENESKG
-
+```
+https://api.postman.com/collections/30344579-a0674725-66fb-4f96-a80f-2d5e8e3f916d?access_key=PMAT-01J50SK085XAN5VX76WMENESKG
+```
 
 ## API Endpoints
 The API provides the following endpoints:
