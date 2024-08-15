@@ -1,11 +1,27 @@
-# API-COMERCIO
+# Api-comercio - Sistema de Gestão para Comércios
 
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
 ![Spring](https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white)
+![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)
+![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 
-Este projeto é uma APIRest monolítica, construída usando Java, Spring, H2 como banco de dados.
+Api-comercio é uma aplicação backend desenvolvida utilizando o modelo arquitetural monolítico, projetada para oferecer uma solução flexível e completa para a gestão de diversos tipos de comércios.
 
-This project is a monolithic APIRest, built using Java, Spring, H2 as the database.
+- Estrutura e Funcionalidades
+
+A aplicação não implementa camadas de segurança ou login, permitindo um acesso simplificado às funcionalidades através de APIs REST. As APIs disponíveis incluem:
+
+Usuários: Gerencia e consulta os dados dos usuários cadastrados na aplicação.
+
+Roles de Usuários: Gerencia as roles (papéis) atribuídas aos usuários, facilitando a configuração de permissões e acessos específicos.
+
+Categorias: Gerencia as categorias dos produtos, permitindo a organização do catálogo de forma eficiente e personalizada para diferentes tipos de comércio.
+
+Produtos: Focada no gerenciamento de produtos, possibilitando criar, atualizar, excluir e consultar informações sobre os itens disponíveis no comércio.
+
+- O que a aplicação proporciona?
+
+Api-comercio foi desenvolvida para atender as necessidades de gerenciamento de diversos tipos de comércio, proporcionando uma plataforma unificada para a administração de usuários, categorias e produtos. Sua arquitetura monolítica e a ausência de camadas de segurança tornam a aplicação leve e fácil de integrar, ideal para comércios que buscam uma solução direta e eficiente.
 
 ## Table of Contents
 
