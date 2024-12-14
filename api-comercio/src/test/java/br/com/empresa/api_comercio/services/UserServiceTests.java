@@ -1,7 +1,10 @@
 package br.com.empresa.api_comercio.services;
 
 import br.com.empresa.api_comercio.dto.*;
+import br.com.empresa.api_comercio.entities.User;
 import br.com.empresa.api_comercio.repositories.*;
+import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
+import br.com.empresa.api_comercio.services.impl.UserServiceImpl;
 import br.com.empresa.api_comercio.tests.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -16,21 +19,23 @@ import java.util.*;
 public class UserServiceTests {
 
     @Autowired
-    private UserService service;
+    private UserServiceImpl service;
 
     @Autowired
     private UserRepository repository;
 
-    private Long existingId;
-    private Long nonExistingId;
+    private UUID existingId;
+    private UUID nonExistingId;
     private Long countTotalElements;
 
     @BeforeEach
     void setUp() throws Exception{
 
-        existingId = 1L;
-        nonExistingId = 4L;
-        countTotalElements = 3L;
+        Optional<User> obj = repository.findAll().stream().findFirst();;
+        existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        nonExistingId = UUID.randomUUID();
+        countTotalElements = 4L;
     }
 
     @Test
@@ -46,7 +51,7 @@ public class UserServiceTests {
     @Test
     public void queryMethodShouldReturnListFilteredByFirstName() {
 
-        String firstName = "Vane";
+        String firstName = "Mari";
 
         List<UserDTO> list = service.queryMethod(firstName);
 
