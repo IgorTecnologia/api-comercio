@@ -2,6 +2,8 @@ package br.com.empresa.api_comercio.entities;
 
 import org.junit.jupiter.api.*;
 
+import java.util.UUID;
+
 public class RoleTests {
 
     @Test
@@ -9,7 +11,9 @@ public class RoleTests {
 
         Role entity = new Role();
 
-        entity.setId(1L);
+        UUID id = UUID.randomUUID();
+
+        entity.setId(id);
         entity.setAuthority("Boss");
 
         Assertions.assertNotNull(entity);
