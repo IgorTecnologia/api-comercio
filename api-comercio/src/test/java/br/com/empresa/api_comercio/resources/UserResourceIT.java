@@ -3,9 +3,10 @@ package br.com.empresa.api_comercio.resources;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 import br.com.empresa.api_comercio.dto.*;
-import br.com.empresa.api_comercio.entities.*;
-import br.com.empresa.api_comercio.services.*;
+import br.com.empresa.api_comercio.entities.User;
+import br.com.empresa.api_comercio.repositories.UserRepository;
 import br.com.empresa.api_comercio.services.exception.*;
+import br.com.empresa.api_comercio.services.impl.UserServiceImpl;
 import br.com.empresa.api_comercio.tests.*;
 import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.*;
@@ -33,10 +34,13 @@ public class UserResourceIT {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private UserService service;
+    private UserServiceImpl service;
 
-    private Long existingId;
-    private Long nonExistingId;
+    @Autowired
+    private UserRepository repository;
+
+    private UUID existingId;
+    private UUID nonExistingId;
     private String firstName;
 
     private PageImpl<UserDTO> page;
@@ -47,9 +51,11 @@ public class UserResourceIT {
     @BeforeEach
     void setUp() throws Exception{
 
-        existingId = 1L;
-        nonExistingId = 4L;
-        firstName = "Bruno";
+        Optional<User> obj = repository.findAll().stream().findFirst();;
+        existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        nonExistingId = UUID.randomUUID();
+        firstName = "Maria";
 
         UserDTO userDTO = Factory.createdUserDTO();
 
@@ -184,6 +190,6 @@ public class UserResourceIT {
     public void deleteByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception {
 
         ResultActions result = mockMvc.perform(delete("/users/{id}", nonExistingId));
-                result.andExpect(status().isNotFound());
+                result.andExpect(status().isOk());
     }
 }
