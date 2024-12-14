@@ -3,8 +3,10 @@ package br.com.empresa.api_comercio.resources;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 import br.com.empresa.api_comercio.dto.*;
-import br.com.empresa.api_comercio.services.*;
+import br.com.empresa.api_comercio.entities.Role;
+import br.com.empresa.api_comercio.repositories.RoleRepository;
 import br.com.empresa.api_comercio.services.exception.*;
+import br.com.empresa.api_comercio.services.impl.RoleServiceImpl;
 import br.com.empresa.api_comercio.tests.*;
 import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.*;
@@ -12,6 +14,7 @@ import org.mockito.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.*;
 import org.springframework.boot.test.mock.mockito.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.*;
@@ -34,12 +37,14 @@ public class RoleResourceIT {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private RoleService service;
+    private RoleServiceImpl service;
 
-    private Long existingId;
-    private Long nonExistingId;
-    private Long dependentId;
-    private Long countTotalElements;
+    @Autowired
+    private RoleRepository repository;
+
+    private UUID existingId;
+    private UUID nonExistingId;
+    private UUID dependentId;
     private String authority;
 
     private RoleDTO roleDTO;
@@ -51,11 +56,12 @@ public class RoleResourceIT {
     @BeforeEach
     void setUp() throws Exception{
 
-        existingId = 1L;
-        nonExistingId =5L;
-        dependentId = 4L;
-        countTotalElements = 3L;
-        authority = "Admin";
+        Optional<Role> obj = repository.findAll().stream().findFirst();;
+        UUID existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        nonExistingId = UUID.randomUUID();
+        dependentId = existingId;
+        authority = "Manager";
 
         RoleDTO roleDTO = Factory.createdRoleDTO();
 
@@ -75,7 +81,7 @@ public class RoleResourceIT {
 
         doNothing().when(service).deleteById(existingId);
         doThrow(ResourceNotFoundException.class).when(service).deleteById(nonExistingId);
-        doThrow(DataBaseException.class).when(service).deleteById(dependentId);
+        doThrow(DataIntegrityViolationException.class).when(service).deleteById(dependentId);
     }
 
     @Test
@@ -168,7 +174,7 @@ public class RoleResourceIT {
     public void deleteByIdShouldDeleteObjectWhenIdExisting() throws Exception {
 
         ResultActions result = mockMvc.perform(delete("/roles/{id}", existingId));
-                result.andExpect(status().isNoContent());
+                result.andExpect(status().isOk());
     }
 
     @Test
