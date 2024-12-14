@@ -1,6 +1,7 @@
 package br.com.empresa.api_comercio.repositories;
 
 import br.com.empresa.api_comercio.entities.*;
+import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
 import br.com.empresa.api_comercio.tests.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -15,17 +16,6 @@ public class CategoryRepositoryTests {
     @Autowired
     private CategoryRepository repository;
 
-    private Long existingId;
-    private Long nonExistingId;
-    private Long countTotalElements;
-
-    @BeforeEach
-    void setUp() throws Exception{
-
-        existingId = 1L;
-        nonExistingId = 4L;
-        countTotalElements = 3L;
-    }
 
     @Test
     public void findAllShouldReturnAllCategoriesPaged(){
@@ -40,10 +30,14 @@ public class CategoryRepositoryTests {
     @Test
     public void findByIdShouldReturnObjectWhenIdExisting(){
 
-        Optional<Category> obj = repository.findById(existingId);
+        Optional<Category> obj = repository.findAll().stream().findFirst();
 
-        Assertions.assertNotNull(obj);
-        Assertions.assertTrue(obj.isPresent());
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        Optional<Category> optional = repository.findById(id);
+
+        Assertions.assertNotNull(optional);
+        Assertions.assertTrue(optional.isPresent());
     }
 
     @Test
@@ -52,7 +46,7 @@ public class CategoryRepositoryTests {
     Category entity = Factory.createdCategory();
     repository.save(entity);
 
-    Assertions.assertEquals(countTotalElements + 1, repository.count());
+    Assertions.assertEquals( 4, repository.count());
     }
 
 }
