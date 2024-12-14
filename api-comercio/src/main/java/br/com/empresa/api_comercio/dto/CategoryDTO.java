@@ -2,13 +2,24 @@ package br.com.empresa.api_comercio.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import br.com.empresa.api_comercio.entities.Category;
 import br.com.empresa.api_comercio.entities.Product;
+import br.com.empresa.api_comercio.validations.NameConstraint;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
-public class CategoryDTO {
+@Data
+public class CategoryDTO extends RepresentationModel<CategoryDTO> {
 
-	private Long id;
+	private UUID id;
+
+	@NotNull(message = "The name field is mandatory.")
+	@Size(min = 2, max = 30, message = "Minimum characters allowed are 2 e maximum are 30.")
+	@NameConstraint(message = "The name field already exists (not allowed).")
 	private String name;
 	
 	private List<ProductDTO> products = new ArrayList<>();
@@ -16,7 +27,7 @@ public class CategoryDTO {
 	public CategoryDTO() {
 	}
 
-	public CategoryDTO(Long id, String name) {
+	public CategoryDTO(UUID id, String name) {
 		
 		this.id = id;
 		this.name = name;
@@ -32,26 +43,7 @@ public class CategoryDTO {
 		this(entity);
 		products.forEach(x -> this.products.add(new ProductDTO(x)));
 	}
-	
-	public Long getId() {
-		return id;
-	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public List<ProductDTO> getProducts() {
-		return products;
-	}
 	
 	
 	
