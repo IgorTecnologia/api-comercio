@@ -2,6 +2,8 @@ package br.com.empresa.api_comercio.entities;
 
 import org.junit.jupiter.api.*;
 
+import java.util.UUID;
+
 public class UserTests {
 
     @Test
@@ -10,10 +12,12 @@ public class UserTests {
         User entity = new User();
         Role role = new Role();
 
-        role.setId(1L);
+        UUID id = UUID.randomUUID();
+
+        role.setId(id);
         role.setAuthority("Manager");
 
-        entity.setId(1L);
+        entity.setId(id);
         entity.setFirstName("Ana");
         entity.setLastName("Oliveira");
         entity.setEmail("ana@gmail.com");
