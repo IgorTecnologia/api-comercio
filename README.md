@@ -83,7 +83,7 @@ GET /users - Retrieve a pagination of all users.
                     "href": "http://localhost:8080/users/6a3f3d90-4abe-4dd8-b150-962109c3884b"
                 }
             ]
-        }
+        },
 }
 
 ```
