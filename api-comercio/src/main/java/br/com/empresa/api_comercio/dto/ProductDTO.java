@@ -2,16 +2,38 @@ package br.com.empresa.api_comercio.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import br.com.empresa.api_comercio.entities.Category;
 import br.com.empresa.api_comercio.entities.Product;
+import br.com.empresa.api_comercio.validations.NameConstraint;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
-public class ProductDTO {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Data
+public class ProductDTO extends RepresentationModel<ProductDTO> {
 
-	private Long id;
+	private UUID id;
+
+	@NotNull(message = "The name field is mandatory.")
+	@Size(min = 2, max = 50, message = "Minimum characters allowed are 2 and maximum are 50.")
+	@NameConstraint(message = "The name field already exists (not allowed).")
 	private String name;
-	private double price;
+
+	@Min(value = 0, message = "Minimum allowed value is 0.")
+	@Max(value = 9999, message = "Maximum value allowed is 9999.")
+	private Double price;
+
+	@NotNull(message = "The description field is mandatory.")
+	@Size(min = 2, max = 100, message = "Minimum characters allowed are 2 and maximum are 100.")
 	private String description;
+
 	private String imgUrl;
 	
 	private List<CategoryDTO> categories = new ArrayList<>();
@@ -19,7 +41,7 @@ public class ProductDTO {
 	public ProductDTO() {
 	}
 
-	public ProductDTO(Long id, String name, double price, String description, String imgUrl) {
+	public ProductDTO(UUID id, String name, Double price, String description, String imgUrl) {
 		this.id = id;
 		this.name = name;
 		this.price = price;
@@ -41,51 +63,4 @@ public class ProductDTO {
 		this(entity);
 		categories.forEach(x -> this.categories.add(new CategoryDTO(x)));
 	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public double getPrice() {
-		return price;
-	}
-
-	public void setPrice(double price) {
-		this.price = price;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getImgUrl() {
-		return imgUrl;
-	}
-
-	public void setImgUrl(String imgUrl) {
-		this.imgUrl = imgUrl;
-	}
-
-	public List<CategoryDTO> getCategories() {
-		return categories;
-	}
-	
-	
-	
 }
