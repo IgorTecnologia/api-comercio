@@ -1,7 +1,11 @@
 package br.com.empresa.api_comercio.services;
 
 import br.com.empresa.api_comercio.dto.*;
+import br.com.empresa.api_comercio.entities.Product;
+import br.com.empresa.api_comercio.entities.User;
 import br.com.empresa.api_comercio.repositories.*;
+import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
+import br.com.empresa.api_comercio.services.impl.ProductServiceImpl;
 import br.com.empresa.api_comercio.tests.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -16,20 +20,24 @@ import java.util.*;
 public class ProductServiceTests {
 
     @Autowired
-    private ProductService service;
+    private ProductServiceImpl service;
 
     @Autowired
     private ProductRepository repository;
 
-    private Long existingId;
-    private Long nonExistingId;
+    private UUID existingId;
+    private UUID nonExistingId;
+    String name;
     private Long countTotalElements;
 
     @BeforeEach
     void setUp() throws Exception{
 
-        existingId = 1L;
-        nonExistingId = 5L;
+        Optional<Product> obj = repository.findAll().stream().findFirst();;
+        existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        nonExistingId = UUID.randomUUID();
+        name = "Bolo";
         countTotalElements = 4L;
     }
 
@@ -45,8 +53,6 @@ public class ProductServiceTests {
 
     @Test
     public void queryMethodShouldReturnListFilteredByName(){
-
-        String name = "Maçã";
 
         List<ProductDTO> list = service.queryMethod(name);
 
