@@ -3,52 +3,62 @@ package br.com.empresa.api_comercio.tests;
 import br.com.empresa.api_comercio.dto.*;
 import br.com.empresa.api_comercio.entities.*;
 
+import java.util.UUID;
+
 public class Factory {
 
     public static Category createdCategory(){
 
-        Category entity = new Category(null,"Frios");
+        UUID id = UUID.randomUUID();
+        Category entity = new Category(id,"Frios");
         return entity;
     }
 
     public static CategoryDTO createdCategoryDTO(){
 
-        CategoryDTO dto = new CategoryDTO(1L,"Frios");
+        UUID id = UUID.randomUUID();
+        CategoryDTO dto = new CategoryDTO(id,"Frios");
         return dto;
     }
 
     public static Product createdProduct(){
 
-        Product entity = new Product(null,"Leite", 6.5, "Leite integral", "www.img.com");
+        UUID id = UUID.randomUUID();
+        Product entity = new Product(id,"Leite", 6.5, "Leite integral", "www.img.com");
         return entity;
     }
 
     public static ProductDTO createdProductDTO(){
 
-        ProductDTO dto = new ProductDTO(1L,"Leite", 6.5, "Leite integral", "www.img.com");
+        UUID id = UUID.randomUUID();
+        ProductDTO dto = new ProductDTO(id,"Leite", 6.5, "Leite integral", "www.img.com");
         return dto;
     }
 
     public static Role createdRole(){
 
-        Role entity = new Role(null,"Boss");
+        UUID id = UUID.randomUUID();
+        Role entity = new Role(id,"Boss");
         return entity;
     }
 
     public static RoleDTO createdRoleDTO(){
 
-        RoleDTO dto = new RoleDTO(1L,"Manager");
+        UUID id = UUID.randomUUID();
+        RoleDTO dto = new RoleDTO(id,"Manager");
         return dto;
     }
     public static User createdUser(){
 
-        User entity = new User(null, "Bruno", "Abulquerque", "bruno@gmail.com", "123456");
+        UUID id = UUID.randomUUID();
+        User entity = new User(id, "Bruno", "Abulquerque", "bruno@gmail.com", "123456");
         return entity;
     }
 
     public static UserDTO createdUserDTO(){
 
-        UserDTO dto = new UserDTO(1L, "Bruno", "Abulquerque", "bruno@gmail.com", "123456");
+        UUID id = UUID.randomUUID();
+        UserDTO dto = new UserDTO(id, "Bruno", "Abulquerque", "bruno@gmail.com", "123456");
         return dto;
     }
 }
