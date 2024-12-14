@@ -64,20 +64,27 @@ The API provides the following endpoints:
 GET /users - Retrieve a pagination of all users.
 ```
 ```json
+{
 "content": [
         {
-            "id": 1,
-            "firstName": "Igor",
-            "lastName": "Gonçalves",
-            "email": "igor@gmail.com",
-            "password": "1234",
+            "id": "6a3f3d90-4abe-4dd8-b150-962109c3884b",
+            "firstName": "Gustavo",
+            "lastName": "Barros",
+            "email": "gustavo@gmail.com",
             "roles": [
                 {
-                    "id": 1,
-                    "authority": "Assistent"
+                    "id": "76d1a6cc-0e15-4936-84e8-0e59cc800dc1",
+                    "authority": "Seller"
+                }
+            ],
+            "links": [
+                {
+                    "rel": "self",
+                    "href": "http://localhost:8080/users/6a3f3d90-4abe-4dd8-b150-962109c3884b"
                 }
             ]
         }
+}
 ```
 **GET USERS**
 ```markdown
@@ -87,12 +94,17 @@ Exemple: GET /users/firstName/Igor
 ```json
    [
     {
-        "id": 4,
-        "firstName": "Igor",
-        "lastName": "Gonçalves",
-        "email": "igor@gmail.com",
-        "password": "1234",
-        "roles": []
+        "id": "6a3f3d90-4abe-4dd8-b150-962109c3884b",
+        "firstName": "Gustavo",
+        "lastName": "Barros",
+        "email": "gustavo@gmail.com",
+        "roles": [
+            {
+                "id": "76d1a6cc-0e15-4936-84e8-0e59cc800dc1",
+                "authority": "Seller"
+            }
+        ],
+        "links": []
     }
 ]
 
@@ -104,15 +116,14 @@ GET /users/id - Retrieve a single user by id.
 
 ```json
 {
-    "id": 1,
-    "firstName": "Igor",
-    "lastName": "Gonçalves",
-    "email": "igor@gmail.com",
-    "password": "1234",
+    "id": "6a3f3d90-4abe-4dd8-b150-962109c3884b",
+    "firstName": "Gustavo",
+    "lastName": "Barros",
+    "email": "gustavo@gmail.com",
     "roles": [
         {
-            "id": 1,
-            "authority": "Assistent"
+            "id": "76d1a6cc-0e15-4936-84e8-0e59cc800dc1",
+            "authority": "Seller"
         }
     ]
 }
@@ -124,15 +135,14 @@ POST /users - Register a new user into the App
 ```
 ```json
 {
-    "id": 3,
+    "id": "14e3e76c-ee74-43e8-9d11-b31ff11a09e0",
     "firstName": "Vitória",
     "lastName": "Gonçalves",
     "email": "vitoria@gmail.com",
-    "password": "1234567",
     "roles": [
         {
-            "id": 2,
-            "authority": "Admin"
+            "id": "941546f5-019a-4e73-a09c-3100eb5f68bf",
+            "authority": "Assistent"
         }
     ]
 }
@@ -143,13 +153,14 @@ PUT/users/id - Update a user in the application by id.
 ```
 ```json
 {
-    "firstName": "Nanci",
-    "lastName": "Maria",
-    "email": "nanci@gmail.com",
-    "password": "1234567",
+    "id": "14e3e76c-ee74-43e8-9d11-b31ff11a09e0",
+    "firstName": "Vitória",
+    "lastName": "Gonçalves",
+    "email": "vitoria@gmail.com.br",
     "roles": [
         {
-            "id": 2
+            "id": "0faeb913-d7ec-4a7d-a0ef-b79831b5ea94",
+            "authority": "Admin"
         }
     ]
 }
@@ -157,7 +168,8 @@ PUT/users/id - Update a user in the application by id.
 **DELETE USERS**
 ```markdown
 DELETE/users/id - Delete a user in the application by id.
-return HTTP status: 204 NO CONTENT
+return HTTP status: 200.
+Body: User deleted successfully.
 
 ```
 ## Database
@@ -173,7 +185,7 @@ The application comes with the H2 database as standard.
 - Spring Boot
 - Maven
 - H2 Database
-- Spring Tool Suite 4
+- IntelliJ IDEA Community
 - Postman
 
 ## Observation
