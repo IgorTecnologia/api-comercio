@@ -1,85 +1,23 @@
 package br.com.empresa.api_comercio.services;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import br.com.empresa.api_comercio.dto.CategoryDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import br.com.empresa.api_comercio.dto.CategoryDTO;
-import br.com.empresa.api_comercio.entities.Category;
-import br.com.empresa.api_comercio.repositories.CategoryRepository;
-import br.com.empresa.api_comercio.services.exception.DataBaseException;
-import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
+import java.util.List;
+import java.util.UUID;
 
-@Service
-public class CategoryService {
+public interface CategoryService {
 
-	@Autowired
-	private CategoryRepository repository;
+    Page<CategoryDTO> findAllPaged(Pageable pageable);
 
-	@Transactional(readOnly = true)
-	public Page<CategoryDTO> findAllPaged(Pageable pageable) {
+    List<CategoryDTO> queryMethod(String name);
 
-		Page<Category> page = repository.findAll(pageable);
+    CategoryDTO findById(UUID id);
 
-		return page.map(x -> new CategoryDTO(x));
-	}
-	
-	@Transactional(readOnly = true)
-	public List<CategoryDTO> queryMethod(String name) {
-		
-		List<Category> list = repository.findAllByNameContainingIgnoreCase(name);
-		return list.stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
-	}
+    CategoryDTO insert(CategoryDTO dto);
 
-	@Transactional(readOnly = true)
-	public CategoryDTO findById(Long id) {
+    CategoryDTO update(UUID id, CategoryDTO dto);
 
-		Optional<Category> obj = repository.findById(id);
-
-		Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found" + id));
-
-		return new CategoryDTO(entity);
-	}
-
-	@Transactional
-	public CategoryDTO insert(CategoryDTO dto) {
-
-		Category entity = new Category();
-		entity.setName(dto.getName());
-		repository.save(entity);
-		return new CategoryDTO(entity);
-	}
-
-	@Transactional
-	public CategoryDTO update(Long id, CategoryDTO dto) {
-
-		Optional<Category> obj = repository.findById(id);
-
-		Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + id));
-		entity.setName(dto.getName());
-		repository.save(entity);
-		return new CategoryDTO(entity);
-
-	}
-
-	public void deleteById(Long id) {
-		try {
-
-			Optional<Category> obj = repository.findById(id);
-			if (obj.isEmpty()) {
-				throw new ResourceNotFoundException("Id not found " + id);
-			}
-			repository.deleteById(id);
-
-		} catch (DataIntegrityViolationException e) {
-			throw new DataBaseException("Integrity violation");
-		}
-	}
+    void deleteById(UUID id);
 }
