@@ -1,45 +1,18 @@
 package br.com.empresa.api_comercio.resources.exception;
 
-import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
+import java.time.LocalDateTime;
+
+@Data
 public class StandardError {
 
-	private Instant timeStamp;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH-mm-ss'Z'")
+	private LocalDateTime timeStamp;
 	private Integer status;
 	private String error;
 	private String message;
 	private String path;
-	
-	public Instant getTimeStamp() {
-		return timeStamp;
-	}
-	public void setTimeStamp(Instant timeStamp) {
-		this.timeStamp = timeStamp;
-	}
-	public Integer getStatus() {
-		return status;
-	}
-	public void setStatus(Integer status) {
-		this.status = status;
-	}
-	public String getError() {
-		return error;
-	}
-	public void setError(String error) {
-		this.error = error;
-	}
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	public String getPath() {
-		return path;
-	}
-	public void setPath(String path) {
-		this.path = path;
-	}
-	
-	
+
 }
