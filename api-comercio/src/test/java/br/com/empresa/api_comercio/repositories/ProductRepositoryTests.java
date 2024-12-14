@@ -1,6 +1,7 @@
 package br.com.empresa.api_comercio.repositories;
 
 import br.com.empresa.api_comercio.entities.*;
+import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
 import br.com.empresa.api_comercio.tests.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -15,18 +16,6 @@ public class ProductRepositoryTests {
     @Autowired
     private ProductRepository repository;
 
-    private Long existingId;
-    private Long nonExistingId;
-    private Long countTotalElements;
-
-    @BeforeEach
-    void setUp() throws Exception{
-
-        existingId = 1L;
-        nonExistingId = 5L;
-        countTotalElements = 4L;
-    }
-
     @Test
     public void findAllPagedShouldReturnAllProducts(){
 
@@ -40,9 +29,14 @@ public class ProductRepositoryTests {
     @Test
     public void findByIdShouldReturnObjectWhenIdExisting(){
 
-        Optional<Product> obj = repository.findById(existingId);
+        Optional<Product> obj = repository.findAll().stream().findFirst();
 
-        Assertions.assertNotNull(obj);
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        Optional<Product> optional = repository.findById(id);
+
+        Assertions.assertNotNull(optional);
+        Assertions.assertTrue(optional.isPresent());
     }
 
     @Test
@@ -52,14 +46,18 @@ public class ProductRepositoryTests {
 
         repository.save(entity);
 
-        Assertions.assertEquals(countTotalElements +1, repository.count());
+        Assertions.assertEquals(5, repository.count());
     }
 
     @Test
     public void deleteByIdShouldDeleteObjectWhenIdExisting(){
 
-        repository.deleteById(existingId);
+        Optional<Product> obj = repository.findAll().stream().findFirst();
 
-        Assertions.assertEquals(countTotalElements -1, repository.count());
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        repository.deleteById(id);
+
+        Assertions.assertEquals( 3, repository.count());
     }
 }
