@@ -1,8 +1,11 @@
 package br.com.empresa.api_comercio.services;
 
 import br.com.empresa.api_comercio.dto.*;
-import br.com.empresa.api_comercio.entities.*;
+import br.com.empresa.api_comercio.entities.Category;
+import br.com.empresa.api_comercio.entities.User;
 import br.com.empresa.api_comercio.repositories.*;
+import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
+import br.com.empresa.api_comercio.services.impl.CategoryServiceImpl;
 import br.com.empresa.api_comercio.tests.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
@@ -10,16 +13,19 @@ import org.springframework.boot.test.context.*;
 import org.springframework.data.domain.*;
 import org.springframework.transaction.annotation.*;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Transactional
 @SpringBootTest
 public class CategoryServiceTests {
 
-    private Long existingId;
-    private Long nonExistingId;
+    private UUID existingId;
+    private UUID nonExistingId;
     private Long countTotalElements;
 
     @Autowired
-    private CategoryService service;
+    private CategoryServiceImpl service;
 
     @Autowired
     private CategoryRepository repository;
@@ -27,8 +33,10 @@ public class CategoryServiceTests {
     @BeforeEach
     void setUp() throws Exception{
 
-        existingId = 1L;
-        nonExistingId = 4L;
+        Optional<Category> obj = repository.findAll().stream().findFirst();;
+        existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        nonExistingId = UUID.randomUUID();
         countTotalElements = 3L;
     }
 
