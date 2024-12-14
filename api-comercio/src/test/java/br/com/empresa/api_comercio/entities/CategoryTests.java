@@ -2,6 +2,8 @@ package br.com.empresa.api_comercio.entities;
 
 import org.junit.jupiter.api.*;
 
+import java.util.UUID;
+
 public class CategoryTests {
 
     @Test
@@ -10,13 +12,15 @@ public class CategoryTests {
         Category entity = new Category();
         Product product = new Product();
 
-        product.setId(1L);
+        UUID id = UUID.randomUUID();
+
+        product.setId(id);
         product.setName("Pães");
         product.setPrice(8.0);
         product.setDescription("Pães frescos e crocantes");
         product.setImgUrl("www.img.com");
 
-        entity.setId(1L);
+        entity.setId(id);
         entity.setName("Salgados");
 
         entity.getProducts().add(product);
