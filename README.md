@@ -9,15 +9,15 @@ Api-comercio é uma aplicação backend desenvolvida utilizando o modelo arquite
 
 - Estrutura e Funcionalidades
 
-A aplicação não implementa camadas de segurança ou login, permitindo um acesso simplificado às funcionalidades através de APIs REST. As APIs disponíveis incluem:
+A aplicação não implementa camadas de segurança ou login, permitindo um acesso simplificado às funcionalidades através de APIs REST e APIs RESTful. As APIs disponíveis incluem:
 
-Usuários: Gerencia e consulta os dados dos usuários cadastrados na aplicação.
+API RESTful para Usuários: Gerencia e consulta os dados dos usuários cadastrados na aplicação.
 
 Roles de Usuários: Gerencia as roles (papéis) atribuídas aos usuários, facilitando a configuração de permissões e acessos específicos.
 
-Categorias: Gerencia as categorias dos produtos, permitindo a organização do catálogo de forma eficiente e personalizada para diferentes tipos de comércio.
+API RESTful para Categorias: Gerencia as categorias dos produtos, permitindo a organização do catálogo de forma eficiente e personalizada para diferentes tipos de comércio.
 
-Produtos: Focada no gerenciamento de produtos, possibilitando criar, atualizar, excluir e consultar informações sobre os itens disponíveis no comércio.
+API RESTful para Produtos: Focada no gerenciamento de produtos, possibilitando criar, atualizar, excluir e consultar informações sobre os itens disponíveis no comércio.
 
 - O que a aplicação proporciona?
 
