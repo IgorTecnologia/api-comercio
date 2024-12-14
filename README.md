@@ -85,6 +85,7 @@ GET /users - Retrieve a pagination of all users.
             ]
         }
 }
+
 ```
 **GET USERS**
 ```markdown
