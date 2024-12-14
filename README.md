@@ -13,7 +13,7 @@ A aplicação não implementa camadas de segurança ou login, permitindo um aces
 
 API RESTful para Usuários: Gerencia e consulta os dados dos usuários cadastrados na aplicação.
 
-Roles de Usuários: Gerencia as roles (papéis) atribuídas aos usuários, facilitando a configuração de permissões e acessos específicos.
+APIREST Roles de Usuários: Gerencia as roles (papéis) atribuídas aos usuários, facilitando a configuração de permissões e acessos específicos.
 
 API RESTful para Categorias: Gerencia as categorias dos produtos, permitindo a organização do catálogo de forma eficiente e personalizada para diferentes tipos de comércio.
 
