@@ -2,6 +2,8 @@ package br.com.empresa.api_comercio.entities;
 
 import org.junit.jupiter.api.*;
 
+import java.util.UUID;
+
 public class ProductTests {
 
     @Test
@@ -10,10 +12,12 @@ public class ProductTests {
         Product entity = new Product();
         Category category = new Category();
 
-        category.setId(1L);
+        UUID id = UUID.randomUUID();
+
+        category.setId(id);
         category.setName("Doces");
 
-        entity.setId(1L);
+        entity.setId(id);
         entity.setName("Pão sonho");
         entity.setPrice(5.0);
         entity.setDescription("Sabor doce de leite");
