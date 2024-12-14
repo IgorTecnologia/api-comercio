@@ -2,16 +2,40 @@ package br.com.empresa.api_comercio.dto;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import br.com.empresa.api_comercio.entities.Role;
 import br.com.empresa.api_comercio.entities.User;
+import br.com.empresa.api_comercio.validations.EmailConstraint;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import org.springframework.hateoas.RepresentationModel;
 
-public class UserDTO {
+@Data
+public class UserDTO extends RepresentationModel<UserDTO> {
 
-	private Long id;
+	private UUID id;
+
+	@NotNull(message = "The first name field is mandatory.")
+	@Size(min = 2, max = 30, message = "Minimum characters allowed are 2 e maximum are 30.")
 	private String firstName;
+
+	@NotNull(message = "The last name field is mandatory.")
+	@Size(min = 2, max = 50, message = "Minimum characters allowed are 2 e maximum are 50.")
 	private String lastName;
+
+	@NotBlank(message = "The email field is mandatory and does not allow blanks.")
+	@Email(message = "Email must be of an acceptable standard.")
+	@Size(min = 10, max = 50, message = "Minimum characters allowed are 10 e maximum are 50.")
+	@EmailConstraint(message = "Email is already in use (not allowed).")
 	private String email;
+
+	@Size(min = 7, max = 30, message = "Minimum characters allowed are 7 e maximum are 30.")
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	
 	private Set<RoleDTO> roles = new HashSet<>();
@@ -19,7 +43,7 @@ public class UserDTO {
 	public UserDTO() {
 	}
 
-	public UserDTO(Long id, String firstName, String lastName, String email, String password) {
+	public UserDTO(UUID id, String firstName, String lastName, String email, String password) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -41,50 +65,4 @@ public class UserDTO {
 		this(entity);
 		roles.forEach(x -> this.roles.add(new RoleDTO(x)));
 	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public Set<RoleDTO> getRoles() {
-		return roles;
-	}
-	
-	
 }
