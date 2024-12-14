@@ -1,14 +1,15 @@
 package br.com.empresa.api_comercio.services;
 
 import br.com.empresa.api_comercio.dto.*;
-import br.com.empresa.api_comercio.entities.*;
+import br.com.empresa.api_comercio.entities.Product;
+import br.com.empresa.api_comercio.entities.Role;
 import br.com.empresa.api_comercio.repositories.*;
 import br.com.empresa.api_comercio.services.exception.*;
+import br.com.empresa.api_comercio.services.impl.RoleServiceImpl;
 import br.com.empresa.api_comercio.tests.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.context.*;
-import org.springframework.dao.*;
 import org.springframework.data.domain.*;
 import org.springframework.transaction.annotation.*;
 
@@ -19,20 +20,24 @@ import java.util.*;
 public class RoleServiceTests {
 
     @Autowired
-    private RoleService service;
+    private RoleServiceImpl service;
 
     @Autowired
     private RoleRepository repository;
 
-    private Long existingId;
-    private Long nonExistingId;
+    private UUID existingId;
+    private UUID nonExistingId;
+    String authority;
     private Long countTotalElements;
 
     @BeforeEach
     void setUp() throws Exception{
 
-        existingId = 1L;
-        nonExistingId = 4L;
+        Optional<Role> obj = repository.findAll().stream().findFirst();;
+        existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        nonExistingId = UUID.randomUUID();
+        authority = "Manager";
         countTotalElements = 3L;
     }
 
@@ -56,8 +61,6 @@ public class RoleServiceTests {
 
     @Test
     public void queryMethodShouldReturnListFilteredByAuthority(){
-
-        String authority = "Employee";
 
         List<RoleDTO> list = service.queryMethod(authority);
 
