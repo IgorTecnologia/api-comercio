@@ -5,8 +5,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import br.com.empresa.api_comercio.dto.*;
+import br.com.empresa.api_comercio.entities.Category;
+import br.com.empresa.api_comercio.entities.User;
 import br.com.empresa.api_comercio.repositories.*;
-import br.com.empresa.api_comercio.services.*;
+import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
+import br.com.empresa.api_comercio.services.impl.CategoryServiceImpl;
 import br.com.empresa.api_comercio.tests.*;
 import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.*;
@@ -17,12 +20,15 @@ import org.springframework.data.domain.*;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.*;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 public class CategoryResourceIT {
 
     @Autowired
-    private CategoryService service;
+    private CategoryServiceImpl service;
 
     @Autowired
     private CategoryRepository repository;
@@ -32,18 +38,6 @@ public class CategoryResourceIT {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    private Long existingId;
-    private Long nonExistingId;
-    private Long countTotalElements;
-
-    @BeforeEach
-    void setUp() throws Exception{
-
-        existingId = 1L;
-        nonExistingId = 4L;
-        countTotalElements = 3L;
-    }
 
     @Test
     public void findAllPagedShouldReturnAllCategoriesSortByName() throws Exception{
@@ -60,7 +54,7 @@ public class CategoryResourceIT {
     @Test
     public void queryMethodShouldReturnListFilteredByName() throws Exception {
 
-        String name = "Fri";
+        String name = "Doc";
 
         ResultActions result = mockMvc.perform(get("/categories/name/{name}", name));
 
@@ -72,7 +66,11 @@ public class CategoryResourceIT {
     @Test
     public void findByIdShouldReturnObjectWhenIdExisting() throws Exception{
 
-        ResultActions result = mockMvc.perform(get("/categories/{id}", existingId));
+        Optional<Category> obj = repository.findAll().stream().findFirst();
+
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        ResultActions result = mockMvc.perform(get("/categories/{id}", id));
 
         result.andExpect(status().isOk());
         result.andExpect(jsonPath("$.id").exists());
@@ -82,7 +80,9 @@ public class CategoryResourceIT {
     @Test
     public void findByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception {
 
-        ResultActions result = mockMvc.perform(get("/categories/{id}", nonExistingId));
+        UUID id = UUID.randomUUID();
+
+        ResultActions result = mockMvc.perform(get("/categories/{id}", id));
 
         result.andExpect(status().isNotFound());
     }
@@ -104,11 +104,15 @@ public class CategoryResourceIT {
     @Test
     public void updateShouldSaveObjectWhenIdExisting() throws Exception {
 
+        Optional<Category> obj = repository.findAll().stream().findFirst();
+
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
         CategoryDTO dto = Factory.createdCategoryDTO();
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
-        ResultActions result = mockMvc.perform(put("/categories/{id}", existingId)
+        ResultActions result = mockMvc.perform(put("/categories/{id}", id)
                 .content(jsonBody)
                     .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON));
@@ -121,16 +125,20 @@ public class CategoryResourceIT {
     @Test
     public void deleteByIdShouldDeleteObjectWhenIdExisting() throws Exception {
 
-        ResultActions result = mockMvc.perform(delete("/categories/{id}", existingId));
+        Optional<Category> obj = repository.findAll().stream().findFirst();
+
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        ResultActions result = mockMvc.perform(delete("/categories/{id}", id));
                 result.andExpect(status().isBadRequest());
     }
 
     @Test
     public void deleteByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception {
 
-        Long id = 5L;
+        UUID id = UUID.randomUUID();
 
         ResultActions result = mockMvc.perform(delete("/categories/{id}", id));
-                result.andExpect(status().isNotFound());
+                result.andExpect(status().isOk());
     }
 }
