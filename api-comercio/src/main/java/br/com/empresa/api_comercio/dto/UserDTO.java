@@ -1,6 +1,7 @@
 package br.com.empresa.api_comercio.dto;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -64,5 +65,19 @@ public class UserDTO extends RepresentationModel<UserDTO> {
 		
 		this(entity);
 		roles.forEach(x -> this.roles.add(new RoleDTO(x)));
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+		UserDTO that = (UserDTO) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), id);
 	}
 }
