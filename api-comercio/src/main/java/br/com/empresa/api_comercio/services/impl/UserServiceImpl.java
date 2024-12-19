@@ -42,6 +42,9 @@ public class UserServiceImpl implements UserService {
 	public List<UserDTO> queryMethod(String firstName){
 		
 		List<User> list = repository.findAllByFirstNameContainingIgnoreCase(firstName);
+		if(list.isEmpty()){
+			throw new ResourceNotFoundException("Name not found: " + firstName);
+		}
 		return list.stream().map(x -> new UserDTO(x, x.getRoles())).collect(Collectors.toList());
 	}
 	
