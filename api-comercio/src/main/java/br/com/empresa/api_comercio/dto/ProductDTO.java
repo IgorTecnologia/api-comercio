@@ -2,6 +2,7 @@ package br.com.empresa.api_comercio.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import br.com.empresa.api_comercio.entities.Category;
@@ -62,5 +63,19 @@ public class ProductDTO extends RepresentationModel<ProductDTO> {
 		
 		this(entity);
 		categories.forEach(x -> this.categories.add(new CategoryDTO(x)));
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		if (!super.equals(o)) return false;
+		ProductDTO that = (ProductDTO) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(super.hashCode(), id);
 	}
 }
