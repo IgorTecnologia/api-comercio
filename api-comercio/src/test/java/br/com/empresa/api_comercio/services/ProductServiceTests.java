@@ -2,7 +2,6 @@ package br.com.empresa.api_comercio.services;
 
 import br.com.empresa.api_comercio.dto.*;
 import br.com.empresa.api_comercio.entities.Product;
-import br.com.empresa.api_comercio.entities.User;
 import br.com.empresa.api_comercio.repositories.*;
 import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
 import br.com.empresa.api_comercio.services.impl.ProductServiceImpl;
@@ -25,22 +24,6 @@ public class ProductServiceTests {
     @Autowired
     private ProductRepository repository;
 
-    private UUID existingId;
-    private UUID nonExistingId;
-    String name;
-    private Long countTotalElements;
-
-    @BeforeEach
-    void setUp() throws Exception{
-
-        Optional<Product> obj = repository.findAll().stream().findFirst();;
-        existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
-
-        nonExistingId = UUID.randomUUID();
-        name = "Bolo";
-        countTotalElements = 4L;
-    }
-
     @Test
     public void findAllPagedShouldReturnAllProducts(){
 
@@ -54,13 +37,30 @@ public class ProductServiceTests {
     @Test
     public void queryMethodShouldReturnListFilteredByName(){
 
+        String name = "Bolo";
+
         List<ProductDTO> list = service.queryMethod(name);
 
+        Assertions.assertFalse(list.isEmpty());
         Assertions.assertNotNull(list);
     }
 
     @Test
+    public void queryMethodShouldThrowResourceNotFoundExceptionWhenNameNonExisting(){
+
+        String name = "Pão";
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            List<ProductDTO> list = service.queryMethod(name);
+            throw new ResourceNotFoundException("Name not found: " + name);
+        });
+    }
+
+    @Test
     public void findByIdShouldReturnObjectWhenIdExisting(){
+
+        Optional<Product> obj = repository.findAll().stream().findFirst();;
+        UUID existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
 
         ProductDTO dto = service.findById(existingId);
 
@@ -68,30 +68,70 @@ public class ProductServiceTests {
     }
 
     @Test
+    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting(){
+
+        UUID id = UUID.randomUUID();
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            ProductDTO dto = service.findById(id);
+            throw new ResourceNotFoundException("Id not found:" + id);
+        });
+    }
+
+    @Test
     public void insertShouldSaveObjectWhenObjectStructure(){
 
-        ProductDTO dto = Factory.createdProductDTO();
+        ProductDTO dto = Factory.createdProductDto();
 
         service.insert(dto);
 
-        Assertions.assertEquals(countTotalElements +1, repository.count());
+        Assertions.assertEquals( 5, repository.count());
     }
 
     @Test
     public void updateShouldSaveObjectWhenIdExisting() {
 
-        ProductDTO dto = Factory.createdProductDTO();
+        Optional<Product> obj = repository.findAll().stream().findFirst();;
+        UUID existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        ProductDTO dto = Factory.createdProductDto();
 
         service.update(existingId, dto);
 
-        Assertions.assertEquals(countTotalElements, repository.count());
+        Assertions.assertEquals(4, repository.count());
+    }
+
+    @Test
+    public void updateShouldThrowResourceNotFoundExceptionWhenIdNonExisting(){
+
+        UUID id = UUID.randomUUID();
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            ProductDTO dto = Factory.createdProductDtoToUpdate();
+            dto = service.update(id, dto);
+            throw new ResourceNotFoundException("Id not found: " + id);
+        });
     }
 
     @Test
     public void deleteByIdShouldDeleteObjectWhenIdExisting(){
 
+        Optional<Product> obj = repository.findAll().stream().findFirst();;
+        UUID existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
         service.deleteById(existingId);
 
-        Assertions.assertEquals(countTotalElements -1, repository.count());
+        Assertions.assertEquals(3, repository.count());
+    }
+
+    @Test
+    public void deleteByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting(){
+
+        UUID id = UUID.randomUUID();
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.deleteById(id);
+            throw new ResourceNotFoundException("Id not found: " + id);
+        });
     }
 }
