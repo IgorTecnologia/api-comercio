@@ -27,6 +27,17 @@ public class ProductRepositoryTests {
     }
 
     @Test
+    public void queryMethodShouldReturnAllProductFilteredByName(){
+
+        String name = "Bolo";
+
+        List<Product> list = repository.findAllByNameContainingIgnoreCase(name);
+
+        Assertions.assertFalse(list.isEmpty());
+        Assertions.assertNotNull(list);
+    }
+
+    @Test
     public void findByIdShouldReturnObjectWhenIdExisting(){
 
         Optional<Product> obj = repository.findAll().stream().findFirst();
