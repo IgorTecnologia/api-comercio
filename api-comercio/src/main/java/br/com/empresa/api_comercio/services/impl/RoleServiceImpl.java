@@ -37,6 +37,9 @@ public class RoleServiceImpl implements RoleService {
 	public List<RoleDTO> queryMethod(String authority){
 		
 		List<Role> list = repository.findAllByAuthorityContainingIgnoreCase(authority);
+		if(list.isEmpty()){
+			throw new ResourceNotFoundException("Name not found: " + authority);
+		}
 		return list.stream().map(RoleDTO::new).collect(Collectors.toList());
 	}
 	
