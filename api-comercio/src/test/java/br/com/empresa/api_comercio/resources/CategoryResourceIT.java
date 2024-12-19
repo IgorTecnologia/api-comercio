@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import br.com.empresa.api_comercio.dto.*;
 import br.com.empresa.api_comercio.entities.Category;
-import br.com.empresa.api_comercio.entities.User;
 import br.com.empresa.api_comercio.repositories.*;
 import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
 import br.com.empresa.api_comercio.services.impl.CategoryServiceImpl;
@@ -52,15 +51,25 @@ public class CategoryResourceIT {
     }
 
     @Test
-    public void queryMethodShouldReturnListFilteredByName() throws Exception {
+    public void queryMethodShouldReturnAllCategoryFilteredByName() throws Exception {
 
         String name = "Doc";
 
         ResultActions result = mockMvc.perform(get("/categories/name/{name}", name));
 
         result.andExpect(status().isOk());
-        result.andExpect(jsonPath("$[0].id").exists());
-        result.andExpect(jsonPath("$[0].name").exists());
+        result.andExpect(jsonPath("$.[0].id").exists());
+        result.andExpect(jsonPath("$.[0].name").exists());
+    }
+
+    @Test
+    public void queryMethodShouldReturnStatusNotFoundWhenNameNonExisting() throws Exception {
+
+        String name = "Salgados";
+
+        ResultActions result = mockMvc.perform(get("/categories/name/{name}", name));
+
+        result.andExpect(status().isNotFound());
     }
 
     @Test
@@ -78,7 +87,7 @@ public class CategoryResourceIT {
     }
 
     @Test
-    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception {
+    public void findByIdShouldReturnStatusNotFoundWhenIdNonExisting() throws Exception {
 
         UUID id = UUID.randomUUID();
 
@@ -90,7 +99,7 @@ public class CategoryResourceIT {
     @Test
     public void insertShouldSaveObjectWhenCorrectStructure() throws Exception {
 
-        CategoryDTO dto = Factory.createdCategoryDTO();
+        CategoryDTO dto = Factory.createdCategoryDto();
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -108,7 +117,7 @@ public class CategoryResourceIT {
 
         UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
 
-        CategoryDTO dto = Factory.createdCategoryDTO();
+        CategoryDTO dto = Factory.createdCategoryDtoToUpdate();
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -116,14 +125,31 @@ public class CategoryResourceIT {
                 .content(jsonBody)
                     .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON));
-                            result.andExpect(status().isOk());
 
+                result.andExpect(status().isOk());
                 result.andExpect(jsonPath("$.id").exists());
                 result.andExpect(jsonPath("$.name").exists());
     }
 
     @Test
-    public void deleteByIdShouldDeleteObjectWhenIdExisting() throws Exception {
+    public void updateShouldReturnStatusNotFoundWhenIdNonExisting() throws Exception {
+
+        UUID id = UUID.randomUUID();
+
+        CategoryDTO dto = Factory.createdCategoryDtoToUpdateIsNotFound();
+
+        String jsonBody = objectMapper.writeValueAsString(dto);
+
+        ResultActions result = mockMvc.perform(put("/categories/{id}", id)
+                .content(jsonBody)
+                    .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON));
+
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void deleteByIdShouldReturnBadRequestWhenIdIsAssociated() throws Exception {
 
         Optional<Category> obj = repository.findAll().stream().findFirst();
 
@@ -139,6 +165,6 @@ public class CategoryResourceIT {
         UUID id = UUID.randomUUID();
 
         ResultActions result = mockMvc.perform(delete("/categories/{id}", id));
-                result.andExpect(status().isOk());
+                result.andExpect(status().isNotFound());
     }
 }
