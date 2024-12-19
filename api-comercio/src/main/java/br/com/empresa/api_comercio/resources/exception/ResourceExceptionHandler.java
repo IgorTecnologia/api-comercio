@@ -1,5 +1,6 @@
 package br.com.empresa.api_comercio.resources.exception;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -15,7 +16,8 @@ import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
-public class ResourceExceptionHandler {
+public class ResourceExceptionHandler implements Serializable {
+	private static final long serialVersionUID = 1L;
 	
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<StandardError> entityNotFound(ResourceNotFoundException e, HttpServletRequest request){
