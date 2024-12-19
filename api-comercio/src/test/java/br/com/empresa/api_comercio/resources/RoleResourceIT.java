@@ -5,29 +5,25 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import br.com.empresa.api_comercio.dto.*;
 import br.com.empresa.api_comercio.entities.Role;
 import br.com.empresa.api_comercio.repositories.RoleRepository;
-import br.com.empresa.api_comercio.services.exception.*;
+import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
 import br.com.empresa.api_comercio.services.impl.RoleServiceImpl;
 import br.com.empresa.api_comercio.tests.*;
 import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.*;
-import org.mockito.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.*;
-import org.springframework.boot.test.mock.mockito.*;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.*;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.*;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(RoleResource.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class RoleResourceIT {
 
     @Autowired
@@ -36,56 +32,14 @@ public class RoleResourceIT {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @Autowired
     private RoleServiceImpl service;
 
     @Autowired
     private RoleRepository repository;
 
-    private UUID existingId;
-    private UUID nonExistingId;
-    private UUID dependentId;
-    private String authority;
-
-    private RoleDTO roleDTO;
-    private PageImpl<RoleDTO> page;
-
-    public RoleResourceIT() throws Exception {
-    }
-
-    @BeforeEach
-    void setUp() throws Exception{
-
-        Optional<Role> obj = repository.findAll().stream().findFirst();;
-        UUID existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
-
-        nonExistingId = UUID.randomUUID();
-        dependentId = existingId;
-        authority = "Manager";
-
-        RoleDTO roleDTO = Factory.createdRoleDTO();
-
-        page = new PageImpl<>(List.of(roleDTO));
-
-        when(service.findAllPaged(ArgumentMatchers.any())).thenReturn(page);
-
-        when(service.findById(existingId)).thenReturn(roleDTO);
-        when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
-
-        when(service.queryMethod(authority)).thenReturn(page.stream().toList());
-
-        when(service.insert(ArgumentMatchers.any())).thenReturn(roleDTO);
-
-        when(service.update(ArgumentMatchers.eq(existingId), ArgumentMatchers.any())).thenReturn(roleDTO);
-        when(service.update(ArgumentMatchers.eq(nonExistingId), ArgumentMatchers.any())).thenThrow(ResourceNotFoundException.class);
-
-        doNothing().when(service).deleteById(existingId);
-        doThrow(ResourceNotFoundException.class).when(service).deleteById(nonExistingId);
-        doThrow(DataIntegrityViolationException.class).when(service).deleteById(dependentId);
-    }
-
     @Test
-    public void findAllPagedShouldReturnAllCategoriesSortByAuthority() throws Exception {
+    public void findAllPagedShouldReturnAllRolePagedSortByAuthority() throws Exception {
 
         ResultActions result = mockMvc.perform(get("/roles?sort=authority"));
                 result.andExpect(status().isOk());
@@ -96,19 +50,32 @@ public class RoleResourceIT {
     }
 
     @Test
-    public void queryMethodShouldReturnListFilteredByAuthority() throws Exception {
+    public void queryMethodShouldReturnAllRoleFilteredByAuthority() throws Exception {
+
+        String authority = "Manager";
 
         ResultActions result = mockMvc.perform(get("/roles/authority/{authority}", authority));
                 result.andExpect(status().isOk());
 
-                result.andExpect(jsonPath("$[0].id").exists());
-                result.andExpect(jsonPath("$[0].authority").exists());
+                result.andExpect(jsonPath("$.[0].id").exists());
+                result.andExpect(jsonPath("$.[0].authority").exists());
     }
 
     @Test
-    public void findByIdShouldReturnObjectWhenIdExisting() throws Exception {
+    public void queryMethodShouldReturnStatusNotFoundWhenAuthorityNonExists() throws Exception {
 
-        ResultActions result = mockMvc.perform(get("/roles/{id}", existingId));
+        String authority = "Developer";
+        ResultActions result = mockMvc.perform(get("/roles/authority/{authority}", authority));
+
+        result.andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void findByIdShouldReturnRoleByIdWhenIdExists() throws Exception {
+
+        Optional<Role> obj = repository.findAll().stream().findFirst();;
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+        ResultActions result = mockMvc.perform(get("/roles/{id}", id));
                 result.andExpect(status().isOk());
 
                 result.andExpect(jsonPath("$.id").exists());
@@ -116,16 +83,18 @@ public class RoleResourceIT {
     }
 
     @Test
-    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception {
+    public void findByIdShouldReturnStatusNotFoundWhenIdNonExisting() throws Exception {
 
-        ResultActions result = mockMvc.perform(get("/roles/{id}", nonExistingId));
+        UUID id = UUID.randomUUID();
+
+        ResultActions result = mockMvc.perform(get("/roles/{id}", id));
                 result.andExpect(status().isNotFound());
     }
 
     @Test
     public void insertShouldSaveObjectWhenCorrectStructure() throws Exception {
 
-            RoleDTO dto = Factory.createdRoleDTO();
+            RoleDTO dto = Factory.createdRoleDto();
 
             String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -133,54 +102,65 @@ public class RoleResourceIT {
                     .content(jsonBody)
                         .contentType(MediaType.APPLICATION_JSON)
                             .accept(MediaType.APPLICATION_JSON));
-                                result.andExpect(status().isOk());
 
+                    result.andExpect(status().isOk());
                     result.andExpect(jsonPath("$.id").exists());
                     result.andExpect(jsonPath("$.authority").exists());
     }
 
     @Test
-    public void updateShouldSaveObjectWhenIdExisting() throws Exception {
+    public void updateShouldSaveRoleByIdWhenIdExists() throws Exception {
 
-        RoleDTO dto = Factory.createdRoleDTO();
+        Optional<Role> obj = repository.findAll().stream().findFirst();;
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        RoleDTO dto = Factory.createdRoleDtoToUpdate();
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
-        ResultActions result = mockMvc.perform(put("/roles/{id}", existingId)
+        ResultActions result = mockMvc.perform(put("/roles/{id}", id)
                 .content(jsonBody)
                     .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON));
-                            result.andExpect(status().isOk());
 
+                result.andExpect(status().isOk());
                 result.andExpect(jsonPath("$.id").exists());
                 result.andExpect(jsonPath("$.authority").exists());
     }
 
     @Test
-    public void updateShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception{
+    public void updateShouldReturnStatusNotFoundWhenIdNonExisting() throws Exception{
 
-        RoleDTO dto = Factory.createdRoleDTO();
+        UUID id = UUID.randomUUID();
+
+        RoleDTO dto = Factory.createdRoleDtoToUpdateIsNotFound();
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
-        ResultActions result = mockMvc.perform(put("/roles/{id}", nonExistingId)
+        ResultActions result = mockMvc.perform(put("/roles/{id}", id)
                 .content(jsonBody)
                     .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON));
-                            result.andExpect(status().isNotFound());
+
+                result.andExpect(status().isNotFound());
     }
 
     @Test
-    public void deleteByIdShouldDeleteObjectWhenIdExisting() throws Exception {
+    public void deleteByIdShouldReturnBadRequestWhenIdIsAssociated() throws Exception {
 
-        ResultActions result = mockMvc.perform(delete("/roles/{id}", existingId));
-                result.andExpect(status().isOk());
+        Optional<Role> obj = repository.findAll().stream().findFirst();;
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        ResultActions result = mockMvc.perform(delete("/roles/{id}", id));
+                result.andExpect(status().isBadRequest());
     }
 
     @Test
     public void deleteByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception {
 
-        ResultActions result = mockMvc.perform(delete("/roles/{id}", nonExistingId));
+        UUID id = UUID.randomUUID();
+
+        ResultActions result = mockMvc.perform(delete("/roles/{id}", id));
                 result.andExpect(status().isNotFound());
     }
 }
