@@ -43,6 +43,9 @@ public class CategoryServiceImpl implements CategoryService {
 	public List<CategoryDTO> queryMethod(String name) {
 		
 		List<Category> list = repository.findAllByNameContainingIgnoreCase(name);
+		if(list.isEmpty()){
+			throw new ResourceNotFoundException("Name not found: " + name);
+		}
 		return list.stream().map(x -> new CategoryDTO(x, x.getProducts())).collect(Collectors.toList());
 	}
 
