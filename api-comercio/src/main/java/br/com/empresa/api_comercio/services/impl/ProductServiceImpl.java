@@ -42,6 +42,9 @@ public class ProductServiceImpl implements ProductService {
 	public List<ProductDTO> queryMethod(String name) {
 
 		List<Product> list = repository.findAllByNameContainingIgnoreCase(name);
+		if(list.isEmpty()){
+			throw new ResourceNotFoundException("Name not found: " + name);
+		}
 		return list.stream().map(x -> new ProductDTO(x, x.getCategories())).collect(Collectors.toList());
 	}
 
