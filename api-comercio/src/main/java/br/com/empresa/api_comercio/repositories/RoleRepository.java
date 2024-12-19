@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
 import br.com.empresa.api_comercio.entities.Role;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface RoleRepository extends JpaRepository<Role, UUID>{
 
-	public List<Role> findAllByAuthorityContainingIgnoreCase(@Param("authority") String authority);
+	List<Role> findAllByAuthorityContainingIgnoreCase(@Param("authority") String authority);
 }
