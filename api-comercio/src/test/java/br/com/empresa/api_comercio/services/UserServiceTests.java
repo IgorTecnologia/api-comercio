@@ -24,20 +24,6 @@ public class UserServiceTests {
     @Autowired
     private UserRepository repository;
 
-    private UUID existingId;
-    private UUID nonExistingId;
-    private Long countTotalElements;
-
-    @BeforeEach
-    void setUp() throws Exception{
-
-        Optional<User> obj = repository.findAll().stream().findFirst();;
-        existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
-
-        nonExistingId = UUID.randomUUID();
-        countTotalElements = 4L;
-    }
-
     @Test
     public void findAllPagedShouldReturnAllUsers(){
 
@@ -45,6 +31,7 @@ public class UserServiceTests {
 
         Page<UserDTO> page = service.findAllPaged(pageable);
 
+        Assertions.assertFalse(page.isEmpty());
         Assertions.assertNotNull(page);
     }
 
@@ -55,42 +42,98 @@ public class UserServiceTests {
 
         List<UserDTO> list = service.queryMethod(firstName);
 
+        Assertions.assertFalse(list.isEmpty());
         Assertions.assertNotNull(list);
+    }
+
+    @Test
+    public void queryMethodShouldThrowResourceNotFoundExceptionWhenFirstNameNonExisting(){
+
+        String firstName = "Tamara";
+
+       Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+           List<UserDTO> list = service.queryMethod(firstName);
+           throw new ResourceNotFoundException("First name not found: " + firstName);
+       });
     }
 
     @Test
     public void findByIdShouldReturnObjectWhenIdExisting(){
 
-        UserDTO dto = service.findById(existingId);
+        Optional<User> obj = repository.findAll().stream().findFirst();;
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
+
+        UserDTO dto = service.findById(id);
 
         Assertions.assertNotNull(dto);
     }
 
     @Test
+    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting(){
+
+        UUID id = UUID.randomUUID();
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            UserDTO dto = service.findById(id);
+            throw new ResourceNotFoundException("Id not found: " + id);
+        });
+    }
+
+    @Test
     public void insertShouldSaveObjectWhenCorrectStructure(){
 
-        UserDTO dto = Factory.createdUserDTO();
+        UserDTO dto = Factory.createdUserDto();
 
         service.insert(dto);
 
-        Assertions.assertEquals(countTotalElements +1, repository.count());
+        Assertions.assertNotNull(dto);
+        Assertions.assertEquals(5, repository.count());
     }
 
     @Test
     public void updateShouldSaveObjectWhenIdExisting(){
 
-        UserDTO dto = Factory.createdUserDTO();
+        Optional<User> obj = repository.findAll().stream().findFirst();;
+        UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
 
-        service.insert(dto);
+        UserDTO dto = Factory.createdUserDtoToUpdate();
 
-        Assertions.assertEquals(countTotalElements +1, repository.count());
+        dto = service.update(id, dto);
+
+        Assertions.assertNotNull(dto);
+        Assertions.assertEquals( 4, repository.count());
     }
 
     @Test
-    public void deleteByIdShouldDeleteObjectWhenIdExisting(){
+    public void updateShouldThrowResourceNotFoundExceptionWhenIdNonExisting(){
+
+        UUID id = UUID.randomUUID();
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            UserDTO dto = Factory.createdUserDtoToUpdateIsNotFound();
+            throw new ResourceNotFoundException("Id not found: " + id);
+        });
+    }
+
+    @Test
+    public void deleteByIdShouldDeleteUserByIdWhenIdExisting(){
+
+        Optional<User> obj = repository.findAll().stream().findFirst();;
+        UUID existingId = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
 
         service.deleteById(existingId);
 
-        Assertions.assertEquals(countTotalElements -1, repository.count());
+        Assertions.assertEquals(3, repository.count());
+    }
+
+    @Test
+    public void deleteByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting(){
+
+        UUID id = UUID.randomUUID();
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.deleteById(id);
+            throw new ResourceNotFoundException("Id not found: " + id);
+        });
     }
 }
