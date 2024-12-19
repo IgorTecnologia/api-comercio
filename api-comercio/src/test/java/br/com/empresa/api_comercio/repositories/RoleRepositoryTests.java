@@ -27,6 +27,17 @@ public class RoleRepositoryTests {
     }
 
     @Test
+    public void queryMethodShouldReturnAllRoleFilteredByAuthority(){
+
+        String authority = "Manager";
+
+        List<Role> list = repository.findAllByAuthorityContainingIgnoreCase(authority);
+
+        Assertions.assertFalse(list.isEmpty());
+        Assertions.assertNotNull(list);
+    }
+
+    @Test
     public void findByIdShouldReturnObjectWhenIdExisting(){
 
         Optional<Role> obj = repository.findAll().stream().findFirst();
