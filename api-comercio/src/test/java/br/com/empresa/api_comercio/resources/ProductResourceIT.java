@@ -5,7 +5,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import br.com.empresa.api_comercio.dto.*;
-import br.com.empresa.api_comercio.entities.Category;
 import br.com.empresa.api_comercio.entities.Product;
 import br.com.empresa.api_comercio.repositories.ProductRepository;
 import br.com.empresa.api_comercio.services.exception.ResourceNotFoundException;
@@ -47,6 +46,34 @@ public class ProductResourceIT {
             result.andExpect(jsonPath("$.content").exists());
             result.andExpect(jsonPath("$.content[0].id").exists());
             result.andExpect(jsonPath("$.content[0].name").exists());
+            result.andExpect(jsonPath("$.content[0].price").exists());
+            result.andExpect(jsonPath("$.content[0].description").exists());
+            result.andExpect(jsonPath("$.content[0].imgUrl").exists());
+    }
+
+    @Test
+    public void queryMethodShouldReturnAllProductFilteredByName() throws Exception {
+
+        String name = "Bolo";
+
+        ResultActions result = mockMvc.perform(get("/products/name/{name}", name));
+
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.[0].id").exists());
+        result.andExpect(jsonPath("$.[0].name").exists());
+        result.andExpect(jsonPath("$.[0].price").exists());
+        result.andExpect(jsonPath("$.[0].description").exists());
+        result.andExpect(jsonPath("$.[0].imgUrl").exists());
+    }
+
+    @Test
+    public void queryMethodShouldReturnStatusNotFoundWhenNameNonExisting() throws Exception {
+
+        String name = "Torta de amora";
+
+        ResultActions result = mockMvc.perform(get("/products/name/{name}", name));
+
+        result.andExpect(status().isNotFound());
     }
 
     @Test
@@ -59,13 +86,15 @@ public class ProductResourceIT {
         ResultActions result = mockMvc.perform(get("/products/{id}", id));
 
             result.andExpect(status().isOk());
-
             result.andExpect(jsonPath("$.id").exists());
             result.andExpect(jsonPath("$.name").exists());
+            result.andExpect(jsonPath("$.price").exists());
+            result.andExpect(jsonPath("$.description").exists());
+            result.andExpect(jsonPath("$.imgUrl").exists());
     }
 
     @Test
-    public void findByIdShouldThrowResourceNotFoundExceptionWhenIdExisting() throws Exception {
+    public void findByIdShouldReturnStatusNotFoundWhenIdNonExisting() throws Exception {
 
         UUID id = UUID.randomUUID();
 
@@ -77,7 +106,7 @@ public class ProductResourceIT {
     @Test
     public void insertShouldSaveObjectWhenCorrectStructure() throws Exception{
 
-        ProductDTO dto = Factory.createdProductDTO();
+        ProductDTO dto = Factory.createdProductDto();
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -85,10 +114,13 @@ public class ProductResourceIT {
                 .content(jsonBody)
                     .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON));
-                            result.andExpect(status().isOk());
 
+                result.andExpect(status().isOk());
                 result.andExpect(jsonPath("$.id").exists());
                 result.andExpect(jsonPath("$.name").exists());
+                result.andExpect(jsonPath("$.price").exists());
+                result.andExpect(jsonPath("$.description").exists());
+                result.andExpect(jsonPath("$.imgUrl").exists());
     }
 
     @Test
@@ -98,7 +130,7 @@ public class ProductResourceIT {
 
         UUID id = obj.orElseThrow(() -> new ResourceNotFoundException("Id not found: " + obj.get().getId())).getId();
 
-        ProductDTO dto = Factory.createdProductDTO();
+        ProductDTO dto = Factory.createdProductDtoToUpdate();
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -106,18 +138,21 @@ public class ProductResourceIT {
                 .content(jsonBody)
                     .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON));
-                            result.andExpect(status().isOk());
 
+                result.andExpect(status().isOk());
                 result.andExpect(jsonPath("$.id").exists());
                 result.andExpect(jsonPath("$.name").exists());
+                result.andExpect(jsonPath("$.price").exists());
+                result.andExpect(jsonPath("$.description").exists());
+                result.andExpect(jsonPath("$.imgUrl").exists());
     }
 
     @Test
-    public void updateShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception {
+    public void updateShouldReturnStatusNotFoundWhenIdNonExisting() throws Exception {
 
         UUID id = UUID.randomUUID();
 
-        ProductDTO dto = Factory.createdProductDTO();
+        ProductDTO dto = Factory.createdProductDtoUpdateIsNotFound();
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -125,11 +160,12 @@ public class ProductResourceIT {
                 .content(jsonBody)
                     .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON));
-                            result.andExpect(status().isNotFound());
+
+                result.andExpect(status().isNotFound());
     }
 
     @Test
-    public void deleteByIdShouldDeleteObjectWhenIdExisting() throws Exception {
+    public void deleteByIdShouldDeleteProductByIdWhenIdExists() throws Exception {
 
         Optional<Product> obj = repository.findAll().stream().findFirst();
 
@@ -140,7 +176,7 @@ public class ProductResourceIT {
     }
 
     @Test
-    public void deleteByIdShouldThrowResourceNotFoundExceptionWhenIdNonExisting() throws Exception {
+    public void deleteByIdShouldReturnStatusNotFoundWhenIdNonExisting() throws Exception {
 
         UUID id = UUID.randomUUID();
 
