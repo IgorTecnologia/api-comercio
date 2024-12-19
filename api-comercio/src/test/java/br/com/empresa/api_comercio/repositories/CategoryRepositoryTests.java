@@ -28,6 +28,17 @@ public class CategoryRepositoryTests {
     }
 
     @Test
+    public void queryMethodShouldReturnAllCategoryFilteredByName(){
+
+        String name = "Doces";
+
+        List<Category> list = repository.findAllByNameContainingIgnoreCase(name);
+
+        Assertions.assertFalse(list.isEmpty());
+        Assertions.assertNotNull(list);
+    }
+
+    @Test
     public void findByIdShouldReturnObjectWhenIdExisting(){
 
         Optional<Category> obj = repository.findAll().stream().findFirst();
@@ -48,5 +59,4 @@ public class CategoryRepositoryTests {
 
     Assertions.assertEquals( 4, repository.count());
     }
-
 }
