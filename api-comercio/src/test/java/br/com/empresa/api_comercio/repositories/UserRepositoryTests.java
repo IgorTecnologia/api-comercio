@@ -27,6 +27,17 @@ public class UserRepositoryTests {
     }
 
     @Test
+    public void queryMethodShouldReturnAllUserFilteredByName(){
+
+        String firstName = "Maria";
+
+        List<User> list = repository.findAllByFirstNameContainingIgnoreCase(firstName);
+
+        Assertions.assertFalse(list.isEmpty());
+        Assertions.assertNotNull(list);
+    }
+
+    @Test
     public void findByIdShouldReturnObjectWhenIdExisting(){
 
         Optional<User> obj = repository.findAll().stream().findFirst();
